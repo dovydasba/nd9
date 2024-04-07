@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <input type="text" id="countryName" placeholder="Enter country name">
+    <button onclick="getCountryData()">Get Country Data</button>
+    <div id="countryData"></div>
+
+    <script>
+        async function getCountryData() {
+            const countryName = document.getElementById('countryName').value;
+            const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
+            const data = await response.json();
+            const country = data[0];
+
+            const flagUrl = `https://flagcdn.com/w320/${country.cca2.toLowerCase()}.png`;
+            const coatOfArmsUrl = `https://mainfacts.com/media/images/coats_of_arms/${country.cca2.toLowerCase()}.png`;
+
+            let neighbors = '';
+            for (const border of country.borders) {
+                const neighborResponse = await fetch(`https://restcountries.com/v3.1/alpha/${border}`);
+                const neighborData = await neighborResponse.json();
+                const neighbor = neighborData[0];
+                neighbors += `${neighbor.name.common} (${neighbor.population})<br>`;
+            }
+
+            const result = `
+                Name: ${country.name.common}<br>
+                Population: ${country.population}<br>
+                Area: ${country.area} sq.km <br>
+                Currency: ${Object.keys(country.currencies)[0]}<br>
+                Language: ${Object.keys(country.languages)[0]}<br>
+                Flag: <img src="${flagUrl}" width="100"><br>
+                Coat of Arms: <img src="${coatOfArmsUrl}" width="100"><br>
+                Neighbors: <br>${neighbors}
+            `;
+
+            document.getElementById('countryData').innerHTML = result;
+        }
+    </script>
+</body>
+</html>
